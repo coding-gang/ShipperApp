@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "98713104854",
+    "project_id": "shipdev-4ef60",
+    "storage_bucket": "shipdev-4ef60.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98713104854:android:08eba02bce3c3830cff477",
+        "android_client_info": {
+          "package_name": "com.phv.devship"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "98713104854-2vge867kffjs2rpq9hnhpuulco7sam42.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnRGz4VoGNzPCMza3Go5xm24N1xCL2-fQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "98713104854-2vge867kffjs2rpq9hnhpuulco7sam42.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
