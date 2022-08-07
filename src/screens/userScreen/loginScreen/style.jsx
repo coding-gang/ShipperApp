@@ -12,10 +12,13 @@ export function createStyle() {
       justifyContent: "center",
     },
     input: {
-      marginBottom: 12,
+      marginBottom: 5
     },
     btnSubmit: {
       backgroundColor: colorPalletter.lime[500],
     },
+    box:{
+      marginBottom:10
+    }
   });
 }

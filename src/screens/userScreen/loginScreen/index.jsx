@@ -8,6 +8,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { userAccountActions } from "@/store/userReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { BackHandler } from "react-native";
+import { marginBottom } from "styled-system";
 
 const LoginScreen = () => {
   const styles = useMemo(() => {
@@ -67,7 +68,9 @@ const LoginScreen = () => {
 
   return (
     <Box style={styles.container}>
-      <Controller
+
+    <Box style={styles.box}>
+    <Controller
         control={control}
         name="userName"
         render={({ field: { onChange, onBlur, value, ref } }) => (
@@ -80,7 +83,8 @@ const LoginScreen = () => {
           />
         )}
       />
-
+    </Box>
+    <Box style={styles.box}>
       <Controller
         control={control}
         name="password"
@@ -95,6 +99,7 @@ const LoginScreen = () => {
           />
         )}
       />
+    </Box>
 
       <Button style={styles.btnSubmit} onPress={handleSubmit(onSubmit)}>
         Đăng nhập
