@@ -1,12 +1,12 @@
-// import * as Print from "expo-print";
+import RNPrint from 'react-native-print';
 
-// const print = async (htmlString) => {
-//   const html = htmlString
-//   await Print.printAsync({
-//     html,
-//   });
-// };
+const print = async (htmlString) => {
+  const html = htmlString
+  await RNPrint.print({
+    html: html
+  })
+};
 
-// export default function PrintOrderInfomation(htmlString = "<html></html>") {
-//   print(htmlString);
-// }
+export default function PrintOrderInfomation(htmlString = "<html></html>") {
+  print(htmlString);
+}

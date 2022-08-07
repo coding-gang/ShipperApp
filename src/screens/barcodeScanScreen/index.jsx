@@ -3,37 +3,47 @@ import { Text, View, Box } from "native-base";
 import { StyleSheet } from "react-native";
 import { SCREENS_NAME } from "@/constants/screen";
 import { useNavigation } from "@react-navigation/native";
-import { BarCodeScanner } from "expo-barcode-scanner";
 import { getOrderInfoById } from "@/services/getOrderInfoById";
 import { useSelector, useDispatch } from "react-redux";
 import { orderInfoActions } from "@/store/orderInfoReducer/index";
 import { createStyles } from "./style";
 import { useToast } from "native-base";
+import { useCameraDevices } from 'react-native-vision-camera';
+import { Camera } from 'react-native-vision-camera';
+import { useScanBarcodes, BarcodeFormat } from 'vision-camera-code-scanner';
 
 const BarcodeScanScreen = () => {
   const styles = useMemo(() => {
     return createStyles();
   }, []);
 
-  const [hasPermission, setHasPermission] = useState(null);
+  const [hasPermission, setHasPermission] = useState(false);
   const [counter, setCounter] = useState(0);
+  const [isData, setIsData] = useState(false);
   const toast = useToast();
   const code = useSelector((state) => state.userAccount.code);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const devices = useCameraDevices();
+  const device = devices.back;
+
+  const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.CODE_128], {
+    checkInverted: true,
+  });
 
   useEffect(() => {
     (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === "granted");
+      const status = await Camera.requestCameraPermission();
+      setHasPermission(status === 'authorized');
     })();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
-    if (type == "1") {
-      // If type is CODE_128
+  const handleBarCodeScanned = (data) => {
+    if(data){
+      console.log(data);
       getOrderInfoById({ order: data, code: code }).then((res) => {
         if (res.ok) {
+          console.log(res.data);
           navigation.navigate({
             name: SCREENS_NAME.DETAIL_ORDER_INFO,
             params: {
@@ -62,6 +72,7 @@ const BarcodeScanScreen = () => {
         }
       });
     }
+  
   };
 
   if (hasPermission === null) {
@@ -74,11 +85,30 @@ const BarcodeScanScreen = () => {
   return (
     <Box style={styles.container}>
       <View style={{ flex: 1 }}>
-        <BarCodeScanner
-          onBarCodeScanned={handleBarCodeScanned}
-          barCodeTypes={[BarCodeScanner.Constants.BarCodeType.code128]}
-          style={{ ...StyleSheet.absoluteFillObject }}
+      {
+      device != null &&
+    hasPermission && (
+      <>
+        <Camera
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={true}
+          frameProcessor={frameProcessor}
+          frameProcessorFps={5}
         />
+        {
+          barcodes.map((barcode,idx)=>{
+            if(isData){
+              return;
+            }else{
+              setIsData(true);
+              handleBarCodeScanned(barcode.displayValue)
+            } 
+             })
+        }
+      </>
+    )
+      }
       </View>
     </Box>
   );

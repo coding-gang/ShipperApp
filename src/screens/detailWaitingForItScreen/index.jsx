@@ -20,8 +20,7 @@ import { Linking } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { getOrderInfoById } from "@/services/getOrderInfoById";
 import { printMobile } from "@/services/printMobile/index";
-//import PrintOrderInfomation from "@/helper/printeMobile";
-
+import PrintOrderInfomation from "@/helper/printeMobile";
 //Chờ lấy
 const DetailWaitingForItScreen = () => {
   const [orderID, setOrderID] = useState();
@@ -109,8 +108,7 @@ const DetailWaitingForItScreen = () => {
   const printOrderInfoHandle = (orderCode) => {
     printMobile({ order: orderCode, code: code }).then((res) => {
       if (res.ok) {
-        console.log("test-printe");
-      //  PrintOrderInfomation(res.data);
+        PrintOrderInfomation(res.data);
       } else {
         toast.show({
           title: "Đã có lỗi xảy ra !",

@@ -9,7 +9,7 @@ import DetailOrderInfoScreen from "@/screens/detailOrderInfoScreen";
 import DetailWaitingForItScreen from "@/screens/detailWaitingForItScreen";
 import DetailOrderWaitingDeliveryScreen from "@/screens/detailOrderWatingDeliverySceen";
 import DetailOrderDeliverdScreen from "@/screens/detailOrderDeliveredScreen";
-//import BarcodeScanScreen from "@/screens/barcodeScanScreen";
+import BarcodeScanScreen from "@/screens/barcodeScanScreen";
 import EndTripScreen from "@/screens/endTripScreen";
 import StatisticScreen from "@/screens/statisticScreen/index";
 import SuccessInfoScreen from "@/screens/successInfoScreen/index";
@@ -105,10 +105,10 @@ const RootNavigation = () => {
             component={DetailOrderWaitingScreen}
           ></RootStack.Screen>
 
-          {/* <RootStack.Screen
+          <RootStack.Screen
             name={SCREENS_NAME.DETAIL_WAITING_FOR_IT}
             component={DetailWaitingForItScreen}
-          ></RootStack.Screen> */}
+          ></RootStack.Screen>
 
           <RootStack.Screen
             name={SCREENS_NAME.DETAIL_WAITING_DELIVEY}
@@ -130,10 +130,10 @@ const RootNavigation = () => {
             component={DetailOrderInfoScreen}
           ></RootStack.Screen>
 
-          {/* <RootStack.Screen
+          <RootStack.Screen
             name={SCREENS_NAME.BARCODE_SCAN}
             component={BarcodeScanScreen}
-          ></RootStack.Screen> */}
+          ></RootStack.Screen>
 
           <RootStack.Screen
             name={SCREENS_NAME.END_TRIP}

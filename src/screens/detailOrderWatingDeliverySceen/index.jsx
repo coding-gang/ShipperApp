@@ -1,14 +1,15 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { Box, Text, Pressable, useToast } from 'native-base';
 import { createStyles } from './style';
-import { ScrollView, Linking } from 'react-native';
-import { getDetailOrder } from '@/services';
+import { ScrollView, Linking,Alert,PermissionsAndroid,Platform} from 'react-native';
+import { getDetailOrder,sendImageDelivery } from '@/services';
 import { useRoute, useNavigation } from '@react-navigation/core';
 import LoadingComponent from '@/components/Loading/index';
 import { changeStatus } from '@/services/changeStatus';
 import { useSelector, useDispatch } from 'react-redux';
 import { SCREENS_NAME } from '@/constants/screen';
 import { listOrderActions } from '@/store/listOrderReducer';
+import ImagePicker from 'react-native-image-crop-picker';
 
 //chờ giao
 function DetailOrderWaitingDeliveryScreen() {
@@ -25,7 +26,113 @@ function DetailOrderWaitingDeliveryScreen() {
 
   const [isGettingData, setIsGettingData] = useState(false);
   const [shopInfo, setShopInfo] = useState();
+  const [count,setCount] =useState(0);
   const codeFromRedux = useSelector((state) => state.userAccount.code);
+
+
+  const requestCameraPermission = async () => { 
+    if (Platform.OS === 'android') {
+     try {
+          setCount(1);
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.CAMERA,
+            {
+              title: 'Camera Permission',
+              message: 'App needs camera permission',
+            },
+          );
+          // If CAMERA Permission is granted
+          return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } catch (err) {
+          console.warn(err);
+          return false;
+        }
+      }
+    }
+
+  const requestExternalWritePermission = async () => {
+      if (Platform.OS === 'android') {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            {
+              title: 'External Storage Write Permission',
+   
+              message: 'App needs write permission',
+            },
+          );
+   
+          // If WRITE_EXTERNAL_STORAGE Permission is granted
+          return granted === PermissionsAndroid.RESULTS.GRANTED;
+        } catch (err) {
+          console.warn(err);
+   
+          alert('Write permission err', err);
+        }
+
+        return false;
+      } else return true;
+    };
+   
+    const captureImage = async () => {
+
+      let options = {
+        width: 300,
+        height: 400,
+        includeBase64:true
+      };
+      
+      let isCameraPermitted = await requestCameraPermission();
+    
+      if (isCameraPermitted ) {
+        let isStoragePermitted = await requestExternalWritePermission();
+          if(isStoragePermitted){
+
+            ImagePicker.openCamera(options).then(image => {
+              sendImageDelivery({ id: id, image:image.data})
+              .then(res =>{
+                   console.log(res);
+                   //
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+            });
+          }
+      } else {
+         if(count > 1){
+          Alert.alert(
+            'Permission camera phone',
+            'allow camera permission in settings',
+            [
+              {
+                text: 'Huỷ',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+              },
+              {text: 'OK', onPress: () => openSettings()},
+            ],
+            
+          );
+         }
+    
+      }
+    };
+
+    const confirmCaptureImage = () =>{
+      Alert.alert(
+        'Xác nhận đơn hàng',
+        'Chụp hình đơn hàng trước khi chuyển trạng thái đơn hàng',
+        [
+          {
+            text: 'Huỷ',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => captureImage() },
+        ],
+      );
+    }
 
   const handleChangeStatus = (id, status) => {
     changeStatus({ id: id, status: status, code: codeFromRedux })
@@ -164,11 +271,11 @@ function DetailOrderWaitingDeliveryScreen() {
             <Box style={styles.btnGroupInner}>
               <Pressable
                 style={styles.btnInner1}
-                onPress={() => handleChangeStatus(shopInfo?.DonHangID, 'DG')}
+                onPress={() => confirmCaptureImage() }
               >
                 <Box style={styles.btnTextTitle}>
                   <Text style={styles.btnTextTitleInner}>{'Đã giao'}</Text>
-                </Box>
+                </Box>           
               </Pressable>
               <Pressable
                 style={styles.btnInner2}
@@ -189,7 +296,8 @@ function DetailOrderWaitingDeliveryScreen() {
             </Box>
           </Box>
         </Box>
-      )}
+      )
+      }
     </>
   );
 }
