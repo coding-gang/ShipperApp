@@ -10,6 +10,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { SCREENS_NAME } from '@/constants/screen';
 import { listOrderActions } from '@/store/listOrderReducer';
 import ImagePicker from 'react-native-image-crop-picker';
+import CallLogs from "react-native-call-log";
 
 //chờ giao
 function DetailOrderWaitingDeliveryScreen() {
@@ -30,9 +31,13 @@ function DetailOrderWaitingDeliveryScreen() {
   const codeFromRedux = useSelector((state) => state.userAccount.code);
 
 
+
+  
+
   const requestCameraPermission = async () => { 
     if (Platform.OS === 'android') {
      try {
+     
           setCount(1);
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -50,9 +55,31 @@ function DetailOrderWaitingDeliveryScreen() {
       }
     }
 
+      const requestCallLogPermission = async () => {
+        if (Platform.OS === "android") {
+          try {
+            setCount(1);
+            const granted = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.READ_CALL_LOG,
+              {
+                title: "Call Permission",
+                message: "App needs call log permission",
+              }
+            );
+            // If CAMERA Permission is granted
+            return granted === PermissionsAndroid.RESULTS.GRANTED;
+          } catch (err) {
+            console.warn(err);
+            return false;
+          }
+        }
+      };
+
   const requestExternalWritePermission = async () => {
       if (Platform.OS === 'android') {
+
         try {
+          
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
             {
@@ -134,6 +161,8 @@ function DetailOrderWaitingDeliveryScreen() {
       );
     }
 
+    
+
   const handleChangeStatus = (id, status) => {
     changeStatus({ id: id, status: status, code: codeFromRedux })
       .then((res) => {
@@ -197,6 +226,32 @@ function DetailOrderWaitingDeliveryScreen() {
     };
   }, [id, tab]);
 
+
+ const handleSendCallLog = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_CALL_LOG,
+        {
+          title: "Call Log Example",
+          message: "Access your call logs",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK",
+        }
+      );
+    
+      if (granted) {
+        console.log(CallLogs);
+        CallLogs.load(5).then((c) => console.log(c));
+      } else {
+        console.log("Call Log permission denied");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+ 
+
   return (
     <>
       {isGettingData ? (
@@ -205,99 +260,104 @@ function DetailOrderWaitingDeliveryScreen() {
         <Box style={styles.container}>
           <ScrollView>
             <Box style={styles.guestInfoSection}>
-              <Pressable onPress={() => Linking.openURL(`tel:${shopInfo?.DienThoaiKH}`)}>
+              <Pressable
+                onPress={() => Linking.openURL(`tel:${shopInfo?.DienThoaiKH}`)}
+              >
                 <Text style={styles.guestInfoPhoneNumber}>
-                  {shopInfo?.Ma} {'-'} {shopInfo?.DienThoaiKH}
+                  {shopInfo?.Ma} {"-"} {shopInfo?.DienThoaiKH}
                 </Text>
               </Pressable>
 
               <Text style={styles.guestInfoName}>
-                {'Người mua:'} <Text>{shopInfo?.TenKH}</Text>
+                {"Người mua:"} <Text>{shopInfo?.TenKH}</Text>
               </Text>
               <Text style={styles.guestInfoAddr}>{shopInfo?.DiaChiKH}</Text>
               <Text style={styles.guestInfoStatus}>
-                {'Trạng thái: '}
-                <Text style={styles.guestInfoStatusInner}>{'CHỜ GIAO'}</Text>
+                {"Trạng thái: "}
+                <Text style={styles.guestInfoStatusInner}>{"CHỜ GIAO"}</Text>
               </Text>
             </Box>
 
             <Box style={styles.priceSection}>
               <Text style={styles.priceText1}>
-                {'Thu hộ:'}{' '}
+                {"Thu hộ:"}{" "}
                 <Text>
-                  {shopInfo?.ThuHo} {' đ'}
+                  {shopInfo?.ThuHo} {" đ"}
                 </Text>
               </Text>
               <Text style={styles.priceShipText}>
-                {'Tiền ship: '}{' '}
+                {"Tiền ship: "}{" "}
                 <Text>
-                  {shopInfo?.TienShip} {' đ'}
+                  {shopInfo?.TienShip} {" đ"}
                 </Text>
               </Text>
               <Text style={styles.summaryPrice}>
-                {'Tổng cộng: '}
+                {"Tổng cộng: "}
                 <Text style={styles.summaryPriceNumber}>
-                  {shopInfo?.TongCong} {' đ'}
+                  {shopInfo?.TongCong} {" đ"}
                 </Text>
               </Text>
             </Box>
 
             <Box style={styles.orderInfoSection}>
               <Text style={styles.orderInfoTextTitle}>
-                {shopInfo?.KhoiLuong} {'-'} {shopInfo?.KichThuoc}
+                {shopInfo?.KhoiLuong} {"-"} {shopInfo?.KichThuoc}
               </Text>
-              <Text>{'1 tham cho be, 2 khăn mặt, 2 nước xả vải comfort.'}</Text>
+              <Text>{"1 tham cho be, 2 khăn mặt, 2 nước xả vải comfort."}</Text>
               <Text>
-                {'Tổng cộng: '}
-                <Text>{'375.000 đ'}</Text>
+                {"Tổng cộng: "}
+                <Text>{"375.000 đ"}</Text>
               </Text>
             </Box>
 
             <Box style={styles.sellerInfoSecction}>
               <Text style={styles.sellerInfoTitleInner}>
-                {'Người bán: '}
+                {"Người bán: "}
                 <Text>{shopInfo?.TenShop}</Text>
               </Text>
-              <Text style={styles.sellerPhoneNumberInner}>{shopInfo?.DienThoaiShop}</Text>
+              <Text style={styles.sellerPhoneNumberInner}>
+                {shopInfo?.DienThoaiShop}
+              </Text>
             </Box>
           </ScrollView>
 
           <Box style={styles.btnGroupBottom}>
             <Box style={styles.btnGroupButtonTitle}>
               <Text style={styles.btnGroupButtonTitleInner}>
-                {'Chuyển trạng thái đơn hàng này sang'}
+                {"Chuyển trạng thái đơn hàng này sang"}
               </Text>
             </Box>
             <Box style={styles.btnGroupInner}>
               <Pressable
                 style={styles.btnInner1}
-                onPress={() => confirmCaptureImage() }
+                onPress={() => handleSendCallLog()}
               >
                 <Box style={styles.btnTextTitle}>
-                  <Text style={styles.btnTextTitleInner}>{'Đã giao'}</Text>
-                </Box>           
+                  <Text style={styles.btnTextTitleInner}>{"Đã giao"}</Text>
+                </Box>
               </Pressable>
               <Pressable
                 style={styles.btnInner2}
-                onPress={() => handleChangeStatus(shopInfo?.DonHangID, 'DGCT')}
+                onPress={() => handleChangeStatus(shopInfo?.DonHangID, "DGCT")}
               >
                 <Box style={styles.btnTextTitle}>
-                  <Text style={styles.btnTextTitleInner}>{'Đã giao 1 phần'}</Text>
+                  <Text style={styles.btnTextTitleInner}>
+                    {"Đã giao 1 phần"}
+                  </Text>
                 </Box>
               </Pressable>
               <Pressable
                 style={styles.btnInner3}
-                onPress={() => handleChangeStatus(shopInfo?.DonHangID, 'CT')}
+                onPress={() => handleChangeStatus(shopInfo?.DonHangID, "CT")}
               >
                 <Box style={styles.btnTextTitle}>
-                  <Text style={styles.btnTextTitleInner}>{'Chờ trả'}</Text>
+                  <Text style={styles.btnTextTitleInner}>{"Chờ trả"}</Text>
                 </Box>
               </Pressable>
             </Box>
           </Box>
         </Box>
-      )
-      }
+      )}
     </>
   );
 }
