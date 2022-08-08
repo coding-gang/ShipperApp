@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { Box, Text, Pressable, useToast } from 'native-base';
 import { createStyles } from './style';
 import { ScrollView, Linking,Alert,PermissionsAndroid,Platform} from 'react-native';
-import { getDetailOrder,sendImageDelivery } from '@/services';
+import { getDetailOrder,sendImageDelivery,sendCallLog } from '@/services';
 import { useRoute, useNavigation } from '@react-navigation/core';
 import LoadingComponent from '@/components/Loading/index';
 import { changeStatus } from '@/services/changeStatus';
@@ -29,7 +29,7 @@ function DetailOrderWaitingDeliveryScreen() {
   const [shopInfo, setShopInfo] = useState();
   const [count,setCount] =useState(0);
   const codeFromRedux = useSelector((state) => state.userAccount.code);
-
+  const [status, setStatus] = useState("");
 
 
   
@@ -55,25 +55,7 @@ function DetailOrderWaitingDeliveryScreen() {
       }
     }
 
-      const requestCallLogPermission = async () => {
-        if (Platform.OS === "android") {
-          try {
-            setCount(1);
-            const granted = await PermissionsAndroid.request(
-              PermissionsAndroid.PERMISSIONS.READ_CALL_LOG,
-              {
-                title: "Call Permission",
-                message: "App needs call log permission",
-              }
-            );
-            // If CAMERA Permission is granted
-            return granted === PermissionsAndroid.RESULTS.GRANTED;
-          } catch (err) {
-            console.warn(err);
-            return false;
-          }
-        }
-      };
+   
 
   const requestExternalWritePermission = async () => {
       if (Platform.OS === 'android') {
@@ -118,7 +100,9 @@ function DetailOrderWaitingDeliveryScreen() {
             ImagePicker.openCamera(options).then(image => {
               sendImageDelivery({ id: id, image:image.data})
               .then(res =>{
-                   console.log(res);
+                   res.data.result === "OK"
+                     ? handleChangeStatus(shopInfo?.DonHangID,status)
+                     : res;
                    //
               })
               .catch((err) => {
@@ -160,8 +144,6 @@ function DetailOrderWaitingDeliveryScreen() {
         ],
       );
     }
-
-    
 
   const handleChangeStatus = (id, status) => {
     changeStatus({ id: id, status: status, code: codeFromRedux })
@@ -208,9 +190,7 @@ function DetailOrderWaitingDeliveryScreen() {
         if (!isComponentMounted) {
           return;
         }
-
         const response = res?.data;
-
         setShopInfo(response);
         setIsGettingData(false);
       })
@@ -226,23 +206,58 @@ function DetailOrderWaitingDeliveryScreen() {
     };
   }, [id, tab]);
 
+ 
+
+  const requireCallLogPermission = async() =>{
+     const granted = await PermissionsAndroid.request(
+       PermissionsAndroid.PERMISSIONS.READ_CALL_LOG,
+       {
+         title: "Call Log Example",
+         message: "Access your call logs",
+         buttonNeutral: "Ask Me Later",
+         buttonNegative: "Cancel",
+         buttonPositive: "OK",
+       }
+     );
+     return granted === PermissionsAndroid.RESULTS.GRANTED
+  }
+
+function formatDate(date, duration) {
+  var d = new Date(date),
+    month = "" + (d.getMonth() + 1),
+    day = "" + d.getDate(),
+    year = d.getFullYear().toString().substr(-2);
+    time = `${d.getHours()}-${d.getMinutes()}`;
+    date = [day, month, year].join("-");
+  return `${time}_${date}_${duration}`;
+}
+
+
+const SendDataCallLog = (dataCallLog) =>{
+  const { dateTime, duration, phoneNumber } = dataCallLog;
+ let time = formatDate(dateTime, duration);
+ const number = phoneNumber;
+ sendCallLog({ number, time })
+   .then((res) => {
+    console.log(res);
+     res.data.result === "OK" ? confirmCaptureImage() : res
+   })
+   .catch((err) => {
+     console.log(err);
+   });
+}
+
 
  const handleSendCallLog = async () => {
     try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_CALL_LOG,
-        {
-          title: "Call Log Example",
-          message: "Access your call logs",
-          buttonNeutral: "Ask Me Later",
-          buttonNegative: "Cancel",
-          buttonPositive: "OK",
-        }
-      );
-    
+      let granted = await requireCallLogPermission();
+      let filter = {
+        phoneNumbers: shopInfo.DienThoaiKH
+      };
       if (granted) {
-        console.log(CallLogs);
-        CallLogs.load(5).then((c) => console.log(c));
+        CallLogs.load(5, filter).then((c) =>{
+          SendDataCallLog(c[0]);
+        });
       } else {
         console.log("Call Log permission denied");
       }
@@ -330,7 +345,10 @@ function DetailOrderWaitingDeliveryScreen() {
             <Box style={styles.btnGroupInner}>
               <Pressable
                 style={styles.btnInner1}
-                onPress={() => handleSendCallLog()}
+                onPress={() => {
+                  setStatus("DG")
+                  handleSendCallLog();
+                }}
               >
                 <Box style={styles.btnTextTitle}>
                   <Text style={styles.btnTextTitleInner}>{"Đã giao"}</Text>
