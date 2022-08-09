@@ -11,7 +11,7 @@ import { SCREENS_NAME } from '@/constants/screen';
 import { listOrderActions } from '@/store/listOrderReducer';
 import ImagePicker from 'react-native-image-crop-picker';
 import CallLogs from "react-native-call-log";
-
+import moment from 'moment';
 //chờ giao
 function DetailOrderWaitingDeliveryScreen() {
   const styles = useMemo(() => {
@@ -29,10 +29,12 @@ function DetailOrderWaitingDeliveryScreen() {
   const [shopInfo, setShopInfo] = useState();
   const [count,setCount] =useState(0);
   const codeFromRedux = useSelector((state) => state.userAccount.code);
-  const [status, setStatus] = useState("");
+  const DA_GIAO = 'DG';
+  const CHO_TRA = 'CT';
+  const DA_GIAO_MOT_PHAN = 'DGCT';
+  let statusOrder = ''; 
 
 
-  
 
   const requestCameraPermission = async () => { 
     if (Platform.OS === 'android') {
@@ -101,9 +103,8 @@ function DetailOrderWaitingDeliveryScreen() {
               sendImageDelivery({ id: id, image:image.data})
               .then(res =>{
                    res.data.result === "OK"
-                     ? handleChangeStatus(shopInfo?.DonHangID,status)
+                     ? handleChangeStatus(shopInfo?.DonHangID,"CT")
                      : res;
-                   //
               })
               .catch((err) => {
                 console.log(err);
@@ -223,28 +224,38 @@ function DetailOrderWaitingDeliveryScreen() {
   }
 
 function formatDate(date, duration) {
-  var d = new Date(date),
-    month = "" + (d.getMonth() + 1),
-    day = "" + d.getDate(),
-    year = d.getFullYear().toString().substr(-2);
-    time = `${d.getHours()}-${d.getMinutes()}`;
-    date = [day, month, year].join("-");
-  return `${time}_${date}_${duration}`;
+  let d = '';
+  if(date.includes('-')){
+    d =  moment(date,"DD-MM-YYYY HH:mm");
+  }else{
+    d =  moment(date);
+  }
+  let month = d.format('M');
+  let day   = d.format('D');
+  let year  = d.format('YY');
+  let hour  = d.format('H');
+  let minute = d.format('mm'); 
+  let  time = `${hour}-${minute}`;
+   date = [day, month, year].join("-");
+   return `${time}_${date}_${duration}`;
 }
 
 
 const SendDataCallLog = (dataCallLog) =>{
-  const { dateTime, duration, phoneNumber } = dataCallLog;
- let time = formatDate(dateTime, duration);
- const number = phoneNumber;
- sendCallLog({ number, time })
-   .then((res) => {
-    console.log(res);
-     res.data.result === "OK" ? confirmCaptureImage() : res
-   })
-   .catch((err) => {
-     console.log(err);
-   });
+     let time = null;
+     let number = shopInfo.DienThoaiKH;
+     if(dataCallLog && dataCallLog.length > 0){
+        const { dateTime, duration, phoneNumber } = dataCallLog[0];
+        time = formatDate(dateTime, duration);
+        number = phoneNumber
+     }
+     sendCallLog({ number, time })
+      .then((res) => {
+        res.data.result === "OK" || "NULL" ? confirmCaptureImage() : res
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 }
 
 
@@ -255,8 +266,8 @@ const SendDataCallLog = (dataCallLog) =>{
         phoneNumbers: shopInfo.DienThoaiKH
       };
       if (granted) {
-        CallLogs.load(5, filter).then((c) =>{
-          SendDataCallLog(c[0]);
+        CallLogs.load(5, filter).then((c) =>{ 
+            SendDataCallLog(c);  
         });
       } else {
         console.log("Call Log permission denied");
@@ -265,7 +276,10 @@ const SendDataCallLog = (dataCallLog) =>{
       console.log(e);
     }
   };
- 
+  
+  const UpdateStatusOrder = (type)=>{
+       statusOrder = type;
+  }
 
   return (
     <>
@@ -346,7 +360,7 @@ const SendDataCallLog = (dataCallLog) =>{
               <Pressable
                 style={styles.btnInner1}
                 onPress={() => {
-                  setStatus("DG")
+                  UpdateStatusOrder(DA_GIAO);
                   handleSendCallLog();
                 }}
               >
@@ -356,7 +370,10 @@ const SendDataCallLog = (dataCallLog) =>{
               </Pressable>
               <Pressable
                 style={styles.btnInner2}
-                onPress={() => handleChangeStatus(shopInfo?.DonHangID, "DGCT")}
+                onPress={() => { 
+                  UpdateStatusOrder(DA_GIAO_MOT_PHAN);
+                  handleSendCallLog();
+                }}
               >
                 <Box style={styles.btnTextTitle}>
                   <Text style={styles.btnTextTitleInner}>
@@ -366,7 +383,10 @@ const SendDataCallLog = (dataCallLog) =>{
               </Pressable>
               <Pressable
                 style={styles.btnInner3}
-                onPress={() => handleChangeStatus(shopInfo?.DonHangID, "CT")}
+                onPress={() => {
+                  UpdateStatusOrder(CHO_TRA);
+                  handleSendCallLog();
+                }}
               >
                 <Box style={styles.btnTextTitle}>
                   <Text style={styles.btnTextTitleInner}>{"Chờ trả"}</Text>
