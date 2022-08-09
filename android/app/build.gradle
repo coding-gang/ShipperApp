@@ -260,6 +260,8 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-call-log')
+    
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     //noinspection GradleDynamicVersion

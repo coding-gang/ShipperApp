@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { Box, Text, Pressable, useToast } from 'native-base';
 import { createStyles } from './style';
 import { ScrollView, Linking,Alert,PermissionsAndroid,Platform} from 'react-native';
-import { getDetailOrder,sendImageDelivery } from '@/services';
+import { getDetailOrder,sendImageDelivery,sendCallLog } from '@/services';
 import { useRoute, useNavigation } from '@react-navigation/core';
 import LoadingComponent from '@/components/Loading/index';
 import { changeStatus } from '@/services/changeStatus';
@@ -10,7 +10,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { SCREENS_NAME } from '@/constants/screen';
 import { listOrderActions } from '@/store/listOrderReducer';
 import ImagePicker from 'react-native-image-crop-picker';
-
+import CallLogs from "react-native-call-log";
+import moment from 'moment';
 //chờ giao
 function DetailOrderWaitingDeliveryScreen() {
   const styles = useMemo(() => {
@@ -28,11 +29,17 @@ function DetailOrderWaitingDeliveryScreen() {
   const [shopInfo, setShopInfo] = useState();
   const [count,setCount] =useState(0);
   const codeFromRedux = useSelector((state) => state.userAccount.code);
+  const DA_GIAO = 'DG';
+  const CHO_TRA = 'CT';
+  const DA_GIAO_MOT_PHAN = 'DGCT';
+  let statusOrder = ''; 
+
 
 
   const requestCameraPermission = async () => { 
     if (Platform.OS === 'android') {
      try {
+     
           setCount(1);
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.CAMERA,
@@ -50,9 +57,13 @@ function DetailOrderWaitingDeliveryScreen() {
       }
     }
 
+   
+
   const requestExternalWritePermission = async () => {
       if (Platform.OS === 'android') {
+
         try {
+          
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
             {
@@ -91,8 +102,9 @@ function DetailOrderWaitingDeliveryScreen() {
             ImagePicker.openCamera(options).then(image => {
               sendImageDelivery({ id: id, image:image.data})
               .then(res =>{
-                   console.log(res);
-                   //
+                   res.data.result === "OK"
+                     ? handleChangeStatus(shopInfo?.DonHangID,"CT")
+                     : res;
               })
               .catch((err) => {
                 console.log(err);
@@ -179,9 +191,7 @@ function DetailOrderWaitingDeliveryScreen() {
         if (!isComponentMounted) {
           return;
         }
-
         const response = res?.data;
-
         setShopInfo(response);
         setIsGettingData(false);
       })
@@ -197,6 +207,80 @@ function DetailOrderWaitingDeliveryScreen() {
     };
   }, [id, tab]);
 
+ 
+
+  const requireCallLogPermission = async() =>{
+     const granted = await PermissionsAndroid.request(
+       PermissionsAndroid.PERMISSIONS.READ_CALL_LOG,
+       {
+         title: "Call Log Example",
+         message: "Access your call logs",
+         buttonNeutral: "Ask Me Later",
+         buttonNegative: "Cancel",
+         buttonPositive: "OK",
+       }
+     );
+     return granted === PermissionsAndroid.RESULTS.GRANTED
+  }
+
+function formatDate(date, duration) {
+  let d = '';
+  if(date.includes('-')){
+    d =  moment(date,"DD-MM-YYYY HH:mm");
+  }else{
+    d =  moment(date);
+  }
+  let month = d.format('M');
+  let day   = d.format('D');
+  let year  = d.format('YY');
+  let hour  = d.format('H');
+  let minute = d.format('mm'); 
+  let  time = `${hour}-${minute}`;
+   date = [day, month, year].join("-");
+   return `${time}_${date}_${duration}`;
+}
+
+
+const SendDataCallLog = (dataCallLog) =>{
+     let time = null;
+     let number = shopInfo.DienThoaiKH;
+     if(dataCallLog && dataCallLog.length > 0){
+        const { dateTime, duration, phoneNumber } = dataCallLog[0];
+        time = formatDate(dateTime, duration);
+        number = phoneNumber
+     }
+     sendCallLog({ number, time })
+      .then((res) => {
+        res.data.result === "OK" || "NULL" ? confirmCaptureImage() : res
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+}
+
+
+ const handleSendCallLog = async () => {
+    try {
+      let granted = await requireCallLogPermission();
+      let filter = {
+        phoneNumbers: shopInfo.DienThoaiKH
+      };
+      if (granted) {
+        CallLogs.load(5, filter).then((c) =>{ 
+            SendDataCallLog(c);  
+        });
+      } else {
+        console.log("Call Log permission denied");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  
+  const UpdateStatusOrder = (type)=>{
+       statusOrder = type;
+  }
+
   return (
     <>
       {isGettingData ? (
@@ -205,99 +289,113 @@ function DetailOrderWaitingDeliveryScreen() {
         <Box style={styles.container}>
           <ScrollView>
             <Box style={styles.guestInfoSection}>
-              <Pressable onPress={() => Linking.openURL(`tel:${shopInfo?.DienThoaiKH}`)}>
+              <Pressable
+                onPress={() => Linking.openURL(`tel:${shopInfo?.DienThoaiKH}`)}
+              >
                 <Text style={styles.guestInfoPhoneNumber}>
-                  {shopInfo?.Ma} {'-'} {shopInfo?.DienThoaiKH}
+                  {shopInfo?.Ma} {"-"} {shopInfo?.DienThoaiKH}
                 </Text>
               </Pressable>
 
               <Text style={styles.guestInfoName}>
-                {'Người mua:'} <Text>{shopInfo?.TenKH}</Text>
+                {"Người mua:"} <Text>{shopInfo?.TenKH}</Text>
               </Text>
               <Text style={styles.guestInfoAddr}>{shopInfo?.DiaChiKH}</Text>
               <Text style={styles.guestInfoStatus}>
-                {'Trạng thái: '}
-                <Text style={styles.guestInfoStatusInner}>{'CHỜ GIAO'}</Text>
+                {"Trạng thái: "}
+                <Text style={styles.guestInfoStatusInner}>{"CHỜ GIAO"}</Text>
               </Text>
             </Box>
 
             <Box style={styles.priceSection}>
               <Text style={styles.priceText1}>
-                {'Thu hộ:'}{' '}
+                {"Thu hộ:"}{" "}
                 <Text>
-                  {shopInfo?.ThuHo} {' đ'}
+                  {shopInfo?.ThuHo} {" đ"}
                 </Text>
               </Text>
               <Text style={styles.priceShipText}>
-                {'Tiền ship: '}{' '}
+                {"Tiền ship: "}{" "}
                 <Text>
-                  {shopInfo?.TienShip} {' đ'}
+                  {shopInfo?.TienShip} {" đ"}
                 </Text>
               </Text>
               <Text style={styles.summaryPrice}>
-                {'Tổng cộng: '}
+                {"Tổng cộng: "}
                 <Text style={styles.summaryPriceNumber}>
-                  {shopInfo?.TongCong} {' đ'}
+                  {shopInfo?.TongCong} {" đ"}
                 </Text>
               </Text>
             </Box>
 
             <Box style={styles.orderInfoSection}>
               <Text style={styles.orderInfoTextTitle}>
-                {shopInfo?.KhoiLuong} {'-'} {shopInfo?.KichThuoc}
+                {shopInfo?.KhoiLuong} {"-"} {shopInfo?.KichThuoc}
               </Text>
-              <Text>{'1 tham cho be, 2 khăn mặt, 2 nước xả vải comfort.'}</Text>
+              <Text>{"1 tham cho be, 2 khăn mặt, 2 nước xả vải comfort."}</Text>
               <Text>
-                {'Tổng cộng: '}
-                <Text>{'375.000 đ'}</Text>
+                {"Tổng cộng: "}
+                <Text>{"375.000 đ"}</Text>
               </Text>
             </Box>
 
             <Box style={styles.sellerInfoSecction}>
               <Text style={styles.sellerInfoTitleInner}>
-                {'Người bán: '}
+                {"Người bán: "}
                 <Text>{shopInfo?.TenShop}</Text>
               </Text>
-              <Text style={styles.sellerPhoneNumberInner}>{shopInfo?.DienThoaiShop}</Text>
+              <Text style={styles.sellerPhoneNumberInner}>
+                {shopInfo?.DienThoaiShop}
+              </Text>
             </Box>
           </ScrollView>
 
           <Box style={styles.btnGroupBottom}>
             <Box style={styles.btnGroupButtonTitle}>
               <Text style={styles.btnGroupButtonTitleInner}>
-                {'Chuyển trạng thái đơn hàng này sang'}
+                {"Chuyển trạng thái đơn hàng này sang"}
               </Text>
             </Box>
             <Box style={styles.btnGroupInner}>
               <Pressable
                 style={styles.btnInner1}
-                onPress={() => confirmCaptureImage() }
+                onPress={() => {
+                  UpdateStatusOrder(DA_GIAO);
+                  handleSendCallLog();
+                }}
               >
                 <Box style={styles.btnTextTitle}>
-                  <Text style={styles.btnTextTitleInner}>{'Đã giao'}</Text>
-                </Box>           
+                  <Text style={styles.btnTextTitleInner}>{"Đã giao"}</Text>
+                </Box>
               </Pressable>
               <Pressable
                 style={styles.btnInner2}
-                onPress={() => handleChangeStatus(shopInfo?.DonHangID, 'DGCT')}
+                onPress={() => { 
+                  UpdateStatusOrder(DA_GIAO_MOT_PHAN);
+                  handleSendCallLog();
+                }}
               >
                 <Box style={styles.btnTextTitle}>
-                  <Text style={styles.btnTextTitleInner}>{'Đã giao 1 phần'}</Text>
+                  <Text style={styles.btnTextTitleInner}>
+                    {"Đã giao 1 phần"}
+                  </Text>
                 </Box>
               </Pressable>
               <Pressable
                 style={styles.btnInner3}
-                onPress={() => handleChangeStatus(shopInfo?.DonHangID, 'CT')}
+                onPress={() => {
+                  UpdateStatusOrder(CHO_TRA);
+                  handleSendCallLog();
+                }}
               >
                 <Box style={styles.btnTextTitle}>
-                  <Text style={styles.btnTextTitleInner}>{'Chờ trả'}</Text>
+                  <Text style={styles.btnTextTitleInner}>{"Chờ trả"}</Text>
                 </Box>
               </Pressable>
             </Box>
           </Box>
         </Box>
-      )
-      }
+      )}
     </>
   );
 }

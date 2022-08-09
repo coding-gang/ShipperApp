@@ -108,16 +108,17 @@ function WaitForDeliveryScreen() {
   }, [groupId, isReGettingDataCGFromRedux]);
 
   const renderListWaiting = listShop?.map((item) => {
+    console.log(item);
     return (
       <Box style={styles.listOrderItem} key={item.DonHangID}>
         <Box>
-          <Pressable onPress={() => Linking.openURL(`tel:${item.DienThoai}`)}>
+          <Pressable onPress={() => Linking.openURL(`tel:${item.DienThoaiKH}`)}>
             <Text style={styles.listOrderItemTextPhone}>
-              {item.DonHangID} {'-'} {item.DienThoai}
+              {item.DonHangID} {'-'} {item.DienThoaiKH}
             </Text>
           </Pressable>
-          <Text>{item.HoTen}</Text>
-          <Text>{item.DiaChi}</Text>
+          <Text>{item.TenKH}</Text>
+          <Text>{item.DiaChiKH}</Text>
         </Box>
         <Box>
           <Button
