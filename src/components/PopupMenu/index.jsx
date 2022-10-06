@@ -55,6 +55,13 @@ export default PopupMenu = ({
 
           <Pressable
             style={styles.buttonRow}
+            onPress={() => navigatePressHandle(SCREENS_NAME.PRODUCT_CODE)}
+          >
+            <Text style={styles.textStyle}>{SCREENS_NAME.PRODUCT_CODE}</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.buttonRow}
             onPress={() => navigatePressHandle(SCREENS_NAME.BARCODE_SCAN)}
           >
             <Text style={styles.textStyle}>{SCREENS_NAME.BARCODE_SCAN}</Text>

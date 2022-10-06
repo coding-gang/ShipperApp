@@ -12,4 +12,5 @@ export const SCREENS_NAME = {
   STATISTIC: 'Thống kê',
   SUCCESS_INFO: 'Năng suất',
   TRIP_INFO: 'Chuyến đi',
+  PRODUCT_CODE: 'Mã đơn hàng'
 };

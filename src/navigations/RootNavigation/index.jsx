@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { SCREENS_NAME } from "@/constants/screen";
 import ListOrderDetailScreen from "@/screens/listOrderScreen";
+import ProductCodeScreen from "@/screens/ProductCodeScreen";
 import HomeNavigator from "@/navigations/HomeNavigator";
 import DetailOrderWaitingScreen from "@/screens/detailOrderWaitingScreen";
 import DetailOrderInfoScreen from "@/screens/detailOrderInfoScreen";
@@ -98,6 +99,11 @@ const RootNavigation = () => {
           <RootStack.Screen
             name={SCREENS_NAME.LIST_ORDER}
             component={ListOrderDetailScreen}
+          ></RootStack.Screen>
+
+          <RootStack.Screen
+            name={SCREENS_NAME.PRODUCT_CODE}
+            component={ProductCodeScreen}
           ></RootStack.Screen>
 
           <RootStack.Screen
