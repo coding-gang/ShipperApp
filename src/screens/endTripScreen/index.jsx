@@ -8,6 +8,7 @@ import { endTrip } from "@/services/endTrip/index";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/core";
 import { SCREENS_NAME } from "@/constants/screen";
+import BankTransfer from "@/components/BankTransfer/index";
 
 function EndTripScreen() {
   const styles = useMemo(() => {
@@ -127,6 +128,8 @@ function EndTripScreen() {
             ></Banknote>
           );
         })}
+      <BankTransfer>
+      </BankTransfer> 
       </ScrollView>
       <View style={styles.footerView}>
         <Text style={styles.footerText}>
@@ -147,6 +150,7 @@ function EndTripScreen() {
           >
             {"Nộp tiền"}
           </Text>
+
         </Pressable>
       </View>
     </>
