@@ -6,7 +6,6 @@ import { addOrderInfo } from "@/services/addOrderInfo";
 import { useRoute, useNavigation } from "@react-navigation/core";
 import { useSelector, useDispatch } from "react-redux";
 import { listOrderActions } from "@/store/listOrderReducer";
-
 // chi tiết đơn hàng
 function DetailOrderInfoScreen() {
   const styles = useMemo(() => {
