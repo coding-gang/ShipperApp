@@ -17,7 +17,8 @@ const Banknote = ({
   }, []);
 
   return (
-    <Box style={styles.container}>
+    <>
+     <Box style={styles.container}>
       <Text style={styles.txtBanknote}>{getCurrencyString(curencyValue)} VNĐ</Text>
       <Pressable style={styles.btnDecrease} onPress={() => btnDecsHandle()}>
         <Text style={styles.btnText}>{"—"}</Text>
@@ -33,6 +34,8 @@ const Banknote = ({
         <Text style={styles.btnText}>{"+"}</Text>
       </Pressable>
     </Box>
+    </>
+   
   );
 };
 
