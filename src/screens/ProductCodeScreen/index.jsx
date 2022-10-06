@@ -1,13 +1,10 @@
 import React,{ useMemo,useState} from "react";
-import { Box, Text, View, useToast} from "native-base";
+import { Text, View, useToast} from "native-base";
 import { createStyles } from "./style";
-import { Pressable, TextInput,ImageBackground,Dimensions } from "react-native";
-import { getCurrencyString } from "@/helper/formater";
-import ImagePicker from 'react-native-image-crop-picker';
-import { useSelector, useDispatch } from "react-redux";
+import { Pressable, TextInput } from "react-native";
+import { useSelector } from "react-redux";
 import { addOrderInfo } from "@/services/addOrderInfo";
 
-const WINDOW_WIDTH = Dimensions.get("window").width;
 const ProductCodeScreen = () => {
     const styles = useMemo(() => {
       return createStyles();

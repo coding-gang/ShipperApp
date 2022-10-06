@@ -12,7 +12,8 @@ export function createStyles() {
     },
      txtHeader: {
       fontWeight: "bold",
-      fontSize: 20
+      fontSize: 18,
+      marginTop:30
     },
     inputView: {
         flex: 1,

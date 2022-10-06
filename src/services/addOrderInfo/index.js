@@ -5,7 +5,6 @@ export async function addOrderInfo({ order, code }) {
     order: order,
     code: code,
   };
-  
   try {
     return await httpClient.get("add-order.html", reqParam);
   } catch (err) {
