@@ -20,8 +20,8 @@ const ProductCodeScreen = () => {
             flexWrap: "wrap",
             fontSize: 11,
           },
-          title: res.ok ? "Thêm thành công" : "Thêm thất bại",
-          status: res.ok ? "success" : "error",
+          title: res?.data?.result === "OK" ? "Đã thêm đơn hàng thành công !" : "Đơn hàng này không tồn tại !",
+          status: res?.data?.result === "OK" ? "success" : "error",
           placement: "top",
           isClosable: true,
         });
