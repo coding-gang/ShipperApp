@@ -100,7 +100,7 @@ function EndTripScreen() {
             flexWrap: "wrap",
             fontSize: 11,
           },
-          title: res?.data?.result === "OK" ? "Thành công" : "Thất bại",
+          title: res?.data?.result === "OK" ? "Đã nộp tiền thành công !" : "Hiện tại bạn không có chuyến đi nào !",
           status: res?.data?.result === "OK" ? "success" : "error",
           placement: "top",
           isClosable: true,
@@ -125,7 +125,7 @@ function EndTripScreen() {
             flexWrap: "wrap",
             fontSize: 11,
           },
-          title: res?.data?.result === "OK" ? "Nộp tiền mặt thành công" : "Nộp tiền mặt thất bại",
+          title: res?.data?.result === "OK" ? "Đã nộp tiền thành công !" : "Hiện tại bạn không có chuyến đi nào !",
           status: res?.data?.result === "OK" ? "success" : "error",
           placement: "top",
           isClosable: true,
@@ -137,9 +137,6 @@ function EndTripScreen() {
         }
     })
     }
-      setAmountTransfer('');
-      setImageDataBill('');
-      setIsDisableSubmitButton(false);
 }
 
 
