@@ -1,9 +1,10 @@
 import { httpClient } from "@/helper/index";
 
-export async function sendCallLog({ number, time }) {
+export async function sendCallLog({ number, time, code }) {
   const reqParam = {
     number: number,
     time: time,
+    code: code
   };
 
   try {

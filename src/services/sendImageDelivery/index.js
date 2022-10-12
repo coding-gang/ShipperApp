@@ -1,6 +1,6 @@
 import { httpClient } from "@/helper/index";
 
-export async function sendImageDelivery({ id, image }) {
+export async function sendImageDelivery({ id, image, code }) {
 
   const reqParam = {
     id: id,
@@ -14,7 +14,7 @@ export async function sendImageDelivery({ id, image }) {
   }
   formBody = formBody.join('&');
   try {
-    return await httpClient.post("send-image.html", formBody);
+    return await httpClient.post(`send-image.html?code=${code}`, formBody);
   } catch (err) {
     return err;
   }

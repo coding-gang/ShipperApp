@@ -24,7 +24,6 @@ function DetailOrderWaitingDeliveryScreen() {
   const navigation = useNavigation();
 
   const { id, tab } = route?.params;
-
   const [isGettingData, setIsGettingData] = useState(false);
   const [shopInfo, setShopInfo] = useState();
   const [count,setCount] =useState(0);
@@ -100,7 +99,7 @@ function DetailOrderWaitingDeliveryScreen() {
           if(isStoragePermitted){
 
             ImagePicker.openCamera(options).then(image => {
-              sendImageDelivery({ id: id, image:image.data})
+              sendImageDelivery({ id: id, image: image.data, code: codeFromRedux})
               .then(res =>{
                    res.data.result === "OK"
                      ? handleChangeStatus(shopInfo?.DonHangID,"CT")
@@ -249,7 +248,7 @@ const SendDataCallLog = (dataCallLog) =>{
         time = formatDate(dateTime, duration);
         number = phoneNumber
      }
-     sendCallLog({ number, time })
+     sendCallLog({ number, time, codeFromRedux })
       .then((res) => {
         res.data.result === "OK" || "NULL" ? confirmCaptureImage() : res
       })

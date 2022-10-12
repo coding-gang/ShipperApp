@@ -134,6 +134,10 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    lintOptions {
+        abortOnError false
+    }
+
     defaultConfig {
         applicationId "com.shippernativeapp"
         minSdkVersion rootProject.ext.minSdkVersion

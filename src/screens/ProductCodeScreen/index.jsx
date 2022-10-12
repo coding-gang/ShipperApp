@@ -29,7 +29,7 @@ const ProductCodeScreen = () => {
     }
     return (
         <View style={styles.container}>
-            <Text style={styles.txtHeader}>THÊM ĐƠN HÀNG BĂNG MÃ</Text>
+            <Text style={styles.txtHeader}>THÊM ĐƠN HÀNG BẰNG MÃ</Text>
             <View style={styles.inputView}>
                 <Text style={styles.txtCode}>Mã đơn hàng</Text>
                 <TextInput style={styles.txtInput}
