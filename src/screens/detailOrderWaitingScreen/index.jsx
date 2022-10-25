@@ -83,7 +83,7 @@ function DetailOrderWaitingScreen() {
         setTimeout(() => {
           navigation.replace(SCREENS_NAME.HOME_NAVIGATOR);
           dispatch(listOrderActions.setIsReloadGettingDataCG(true));
-        }, 2000);
+        }, 100);
       })
       .catch((err) => {
         console.log(err);

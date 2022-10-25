@@ -51,7 +51,6 @@ function DeliveredScreen() {
       if (!res?.data?.List) {
         return;
       }
-
       dispatch(userAccountActions.setGroupDG(res?.data?.List[0].GroupID));
       setStreetName(res?.data?.List[0].Name);
       setListStreet(res?.data?.List);

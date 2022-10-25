@@ -72,7 +72,7 @@ const DetailWaitingForItScreen = () => {
             })
           );
           dispatch(listOrderActions.setIsReloadGettingDataCG(true));
-        }, 2000);
+        }, 100);
       })
       .catch((err) => {
         console.log(err);

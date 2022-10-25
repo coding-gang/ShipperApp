@@ -43,7 +43,7 @@ function DetailOrderInfoScreen() {
         setTimeout(() => {
           navigation.goBack();
           dispatch(listOrderActions.setIsReloadGettingDataCG(true));
-        }, 2000);
+        }, 100);
       })
       .catch((err) => {
         alert(err);

@@ -174,7 +174,7 @@ function DetailOrderWaitingDeliveryScreen() {
           navigation.replace(SCREENS_NAME.HOME_NAVIGATOR);
           dispatch(listOrderActions.setIsReloadGettingDataDG(true));
           dispatch(listOrderActions.setIsReloadGettingDataTL(true));
-        }, 2000);
+        }, 100);
       })
       .catch((err) => {
         console.log(err);
@@ -331,10 +331,10 @@ const SendDataCallLog = (dataCallLog) =>{
               <Text style={styles.orderInfoTextTitle}>
                 {shopInfo?.KhoiLuong} {"-"} {shopInfo?.KichThuoc}
               </Text>
-              <Text>{"1 tham cho be, 2 khăn mặt, 2 nước xả vải comfort."}</Text>
+              <Text>{shopInfo?.GhiChu}</Text>
               <Text>
                 {"Tổng cộng: "}
-                <Text>{"375.000 đ"}</Text>
+                <Text>{shopInfo?.TongCong}</Text>
               </Text>
             </Box>
 
