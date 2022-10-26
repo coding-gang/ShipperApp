@@ -38,7 +38,7 @@ const LoginScreen = () => {
       .then((res) => {
         if (res?.data?.result !== "OK") {
           toast.show({
-            description: "Đã có lỗi xảy ra !",
+            description: res?.data?.result,
             status: "error",
             placement: "top",
             isClosable: true,
