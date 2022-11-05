@@ -31,7 +31,7 @@ const LoginScreen = () => {
   });
 
   const onSubmit = (data) => {
-    login({
+    loginByFetch({
       userName: data.userName,
       password: data.password,
     })
