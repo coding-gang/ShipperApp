@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Box, useToast, Input, Button } from "native-base";
-import { login } from "@/services/User/login";
+import { login,loginByFetch } from "@/services/User/login";
 import { useForm, Controller } from "react-hook-form";
 import { createStyle } from "./style";
 import { SCREENS_NAME } from "@/constants/screen";
@@ -36,6 +36,7 @@ const LoginScreen = () => {
       password: data.password,
     })
       .then((res) => {
+        console.log(res);
         if (res?.data?.result !== "OK") {
           toast.show({
             description: "Đã có lỗi xảy ra !",
